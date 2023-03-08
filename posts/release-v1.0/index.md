@@ -71,7 +71,7 @@ A CeresDB cluster consists of the following parts:
 - WAL Service: used to store data written in real-time;
 - Object Storage: used to store SST files generated from memtable;
 
-As for details of the cluster scheme, please refer to the [doc](https://docs.ceresdb.io/cn/design/clustering.html).
+As for details of the cluster scheme, please refer to the [doc](https://docs.ceresdb.io/en/design/clustering.html).
 
 
 # Performance optimization and benchmark
