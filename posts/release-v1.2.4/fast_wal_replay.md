@@ -35,7 +35,7 @@ for table in tables {
 
 当前 CeresDB 的本地 WAL 是基于 RocksDB 进行实现的，单机上所有表的 WAL 日志写入到同一个 RocksDB 实例中（只使用了 default column family）。在按表别回放时，考虑到 WAL 日志顺序写入的特性，以及 RocksDB iterator 的读取原理（此处不展开，具体可以[参考官方 wiki](https://github.com/facebook/rocksdb/wiki/Iterator)），读取文件的情况可以简单梳理成下图：
 
-<img src="https://raw.githubusercontent.com/Rachelint/drawio-store/main/rockswal.drawio.svg?sanitize=true">
+![rockswal](./rockswal.svg)
 
 这种读取方式，存在两个明显的问题：
 
@@ -48,7 +48,7 @@ for table in tables {
 
 当前 CeresDB 集群主要采用基于 Kafka 实现的分布式 WAL，如上文所说 WAL 是按 shard 存储的（称为 WAL 区域），而一个 WAL 区域则被映射为一个 Kafka topic（只使用了单个 partition）。Kafka partition 采用 append 的方式写入记录，并且 Kafka 作为消息队列只支持对 partition 内数据的顺序读取，因此在按表回放的方式下，每个表在读取阶段，只能先读取整个 partition 内的日志然后提取自己的部分(做了一些优化，每个表的读取起点 offset 为尚未被 flush 日志的最小 offset)，如下图所示：
 
-<img src="https://github.com/Rachelint/drawio-store/blob/main/kafkawal.drawio.svg?sanitize=true">
+![kafkawal](./kafkawal.svg)
 
 明显可以看出，这中读取方式会产生大量额外的 IO 操作，而这也确实造成了严重的性能问题。总的来看，无论本地还是分布式 WAL 回放，性能问题的根因，其实都在于**日志读取方式对存储方式本身不够友好**。
 
@@ -74,11 +74,11 @@ for shard_wal_log_batch in shard_wal_logs_iter {
 
 **RocksDB 版 WAL：**
 
-<img src="https://github.com/Rachelint/drawio-store/blob/main/rocksshard.drawio.svg?sanitize=true">
+![rocksshard](./rocksshard.svg)
 
 **Kafka 版 WAL：**
 
-<img src="https://github.com/Rachelint/drawio-store/blob/main/kafkashard.drawio.svg?sanitize=true">
+![kafkashard](./kafkashard.svg)
 
 很明显，对两种 WAL 实现来说，采用按 shard 的日志回放方式，都能减少掉量额外的 IO 操作，从而提高回放性能。
 
