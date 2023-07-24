@@ -2,7 +2,7 @@
 
 ## 背景
 
-在上一篇 [CeresDB 分布式调度](https://github.com/CeresDB/community/blob/pr-1.2.4/posts/release-v1.2.2/cluster_schedule.md) 中，提到了 CeresDB 集群的 failover 过程，其可以简单概括为：
+在上一篇 [CeresDB 分布式调度](https://github.com/CeresDB/community/blob/main/posts/release-v1.2.2/cluster_schedule.md) 中，提到了 CeresDB 集群的 failover 过程，其可以简单概括为：
 
 - CeresMeta 感知到节点宕机，然后将宕机节点上的 shard 调度到仍然存活的其他节点上。
 - 被选取的 CeresDB 节点接收到打开 shard 请求，然后打开相应 shard。
@@ -14,7 +14,7 @@
 
 WAL 日志回放分为读取日志 (IO 操作)，写 memtable (内存操作) 两部分，明显瓶颈为前者，而日志读取方式的性能高低，和数据存储方式是高度相关的，因此这里先介绍一下 CeresDB 中 WAL 日志的存储方式。
 
-在 [Shared Nothing 架构](https://github.com/CeresDB/community/blob/pr-1.2.4/posts/release-v1.2/sharded_nothing.md) 中提到，CeresDB 的 WAL 日志是按 shard 进行存储的，意思就是 shard 内的所有表共享同一个 WAL 日志区域（可以简单理解为共享一个 WAL 日志“文件”）。类似于 HBase 单个 region server 内多个 region 共享一个 HLog，以避免 region 过多时产生大量对磁盘的随机写入从而影响写入性能，CeresDB 将 WAL 按照 shard 进行组织，主要也是出于类似的考虑。
+在 [Shared Nothing 架构](https://github.com/CeresDB/community/blob/main/posts/release-v1.2/sharded_nothing.md) 中提到，CeresDB 的 WAL 日志是按 shard 进行存储的，意思就是 shard 内的所有表共享同一个 WAL 日志区域（可以简单理解为共享一个 WAL 日志“文件”）。类似于 HBase 单个 region server 内多个 region 共享一个 HLog，以避免 region 过多时产生大量对磁盘的随机写入从而影响写入性能，CeresDB 将 WAL 按照 shard 进行组织，主要也是出于类似的考虑。
 而 CeresDB 在 release 1.2.4 之前的 WAL 日志回放方式，也是主要参考了 HBase 的按 region 回放，采用了按表回放，其大致过程为：
 
 ```rust
