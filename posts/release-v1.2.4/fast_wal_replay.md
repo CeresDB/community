@@ -33,7 +33,7 @@ for table in tables {
 
 ## 本地 WAL 遇到的问题
 
-当前 CeresDB 的本地 WAL 是基于 RocksDB 进行实现的，单机上所有表的 WAL 日志写入到同一个 RocksDB 实例中（只使用了 default column family）。在按表别回放时，考虑到 WAL 日志顺序写入的特性，以及 RocksDB iterator 的读取原理（此处不展开，具体可以参考官方 wiki），读取文件的情况可以简单梳理成下图：
+当前 CeresDB 的本地 WAL 是基于 RocksDB 进行实现的，单机上所有表的 WAL 日志写入到同一个 RocksDB 实例中（只使用了 default column family）。在按表别回放时，考虑到 WAL 日志顺序写入的特性，以及 RocksDB iterator 的读取原理（此处不展开，具体可以[参考官方 wiki](https://github.com/facebook/rocksdb/wiki/Iterator)），读取文件的情况可以简单梳理成下图：
 
 <img src="https://raw.githubusercontent.com/Rachelint/drawio-store/main/rockswal.drawio.svg?sanitize=true">
 
