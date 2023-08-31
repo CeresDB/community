@@ -63,8 +63,8 @@ impl Future for AsyncFuture {
 
 When we call `AsyncFuture.await`, `AsyncFuture::poll` get executed. We can see that control flow returns to the worker thread only on state transitions (Pending or Ready). If `fut_one.poll()` contains blocking API, the worker thread will be stuck on that task. Tasks on that worker's run queue are likely to not be scheduled timely despite work stealing. Let me explain this in more details:
 
-![Figure 1](/static/issue-4/ceresdb-task1.png)
-![Figure 2](/static/issue-4/ceresdb-task2.png)
+![Figure 1](task1.png)
+![Figure 2](task2.png)
 
 In the above figure, there are four tasks:
 
