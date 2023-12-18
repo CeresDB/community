@@ -3,12 +3,12 @@
 - Release v1.2.2: https://github.com/CeresDB/ceresdb/releases/tag/v1.2.2
 
 ## 背景
-在 [Shared Nothing](./sharded-nothing.md) 文章中介绍了 CeresDB 的集群拓扑正确性的理论性保障，它从理论上解决了数据可能损坏的可能性，但是并没有就上层具体的实现做过多的说明，我们将在本文和大家分享 CeresDB 分布式调度的设计和实践。
+在 [Shared Nothing](./../release-v1.2/sharded_nothing.md) 文章中介绍了 CeresDB 的集群拓扑正确性的理论性保障，它从理论上解决了数据可能损坏的可能性，但是并没有就上层具体的实现做过多的说明，我们将在本文和大家分享 CeresDB 分布式调度的设计和实践。
 
 ## 问题
 作为一个分布式时序数据库，我们在设计时主要面临的问题有：
 
-1. Shard 的调度，作为 CeresDB 集群调度和管理数据的基本单元，一旦一个 Shard 在多个计算节点上打开且写入，就会导致数据损坏。这个问题在上一篇 [Shared Nothing](./sharded-nothing.md) 已经得到了解决，本文主要介绍如何使用这种机制来完成具体的集群调度。
+1. Shard 的调度，作为 CeresDB 集群调度和管理数据的基本单元，一旦一个 Shard 在多个计算节点上打开且写入，就会导致数据损坏。这个问题在上一篇 [Shared Nothing](./../release-v1.2/sharded_nothing.md) 已经得到了解决，本文主要介绍如何使用这种机制来完成具体的集群调度。
 2. 分布式调度的的容错性以及异常重试，以 Shard 分裂为例：
 ```
 由于热点问题，CeresMeta 发起一次 Shard 分裂，将 Shard 中的部分热点表分裂到新 Shard 中，并将这个新 Shard 在其它 CeresDB 计算节点上打开。
